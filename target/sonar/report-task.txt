@@ -1,0 +1,8 @@
+organization=dhana-java-org
+projectKey=dhana-java-org_dhana-java-app1
+serverUrl=https://sonarcloud.io
+serverVersion=8.0.0.64840
+branch=master
+dashboardUrl=https://sonarcloud.io/dashboard?id=dhana-java-org_dhana-java-app1&branch=master
+ceTaskId=AZenbVAaeLAxp8SH3NyG
+ceTaskUrl=https://sonarcloud.io/api/ce/task?id=AZenbVAaeLAxp8SH3NyG
