@@ -1,0 +1,1313 @@
+Terraform
+
+AC-infrastructure as a code---imp
+
+1 what is benefit of and why Iac tools---in python if run a program server it will create 1 server if run same code again it will create one more server, but in iac run a program it will create server, if again run same code it will tell man you have created already same one is called idempotency---
+
+2 idempotency--if infrastructure is already created then if try to execute program 100 time it will not change anything, 8 changes, this is the behavior we want
+
+3 two categories of lac tools---
+
+1 configuration management tool-we have chef, puppet, salt slack, ansible
+
+2 orchestration tool---cloud formation (AWS)--automate only azure, terraform(open source)-90% interviews asks terraform--70% companies will use--it supports
+
+all cloud provider, bicep (azure), ARM templates (azure)
+
+someone will ask i need to run java
+
+server--1 infrastructure building (orchestration tool) 2 installation and configuration software(operations--configuration,tools--os level)
+
+imp q: why i cannot use ansible in place of terraform---ansible is configuration tool, the configuration is os level, where as terraform is orchestration tool the behavior is to automate the infrastructure provisioning
+
+whenever we want automate infra provisioning such as ec2 vpc, sg, etc in cloud platform, we use orchestration tools
+
+whenever we want manage install config anything at the OS level we use configuration management tool
+
+iac tools if count 2 2nd run create e
+
+VS
+
+scripting----if 1st count =2, 2nd 4
+
+procedure vs declarative
+
+1 print(add(10,20)
+
+def add(a,b): return(a+b)
+
+--never work
+
+I
+
+autoscaling, Launch configuration, LB, target groups, scaling policies, SNS
+
+lambda--SNS, role, lambda--declarative language-wherever you want write you can execute but in terraform it will work, procedural language-it wont work
+
+Terraform
+
+1 we need to install software need to work with terraform it will support in windows, mac, Linux, code
+
+2 server linux
+
+3 Two website---terraform.io--to download terraform s/w---which os--Linux--amazon Linux--copy commands
+
+4 create Linux server--login--set hostname terraform-bash-copy and paste the commands.
+
+5. terraform --version
+
+6 resources--in python we have packages similarly--for everything we have resources in terraform---i want work with ypc-sns vpc, ec2--aws_ec2(section2) 1st section is resource, extension of terraform--.tf
+
+7 section 1 and 2, 3--
+
+8 it supports multiple websites
+
+9 2nd website--registry.terraform.io---under aws--use providers--copy and paste---what ever software you want work with terraform each and everything developed by developer
+
+10 write the code for particular platform, aws, azure, gcp---first section--which cloud provider
+
+11 mkdir myapp1/
+
+12 cd myapp1/
+
+13 vi main.tf
+
+copy from provider
+
+1 current version--source code link---others versions--tags--we can see n no of tags
+
+2 terraform--apply aws infra--1 access--iam--automation user--accesskey, secret key, 2nd option role--this role we can attach to ec2
+
+imp interview Q: how do you doing modification in infra, what are the approaches to maintaining the keys, how are guys deployments
+
+a: create a role--whatever nessary perimisiion(policy) will give--attach to ec2 instance--we will start applying terraform changes
+
+3 go to IAM--add a user--terraform--programmatic access--admin access--create--aws configure--access key, s.key--connecting too the aws via aws this is one approach
+
+4 2nd approach--i am--roles--create-aws servicesec2--policy--admin access--next--create--go to ec2--select server--sections--security--modify iam role--select role-update-2nd one is secure one
+
+working with terraform
+
+different stages
+
+1 terraform init--iniatilazatin
+
+2 terraform plan--verifying
+
+3 terraform apply
+
+4 terraform destroy
+cat main.tf
+
+terraform init---ls -al for hidden files with permission terraform/providers/registry.terraform.io/hashicorp/aws/4.50.0/
+
+terraform plan--this what i am trying to do thing these modifications are work or not-ex--google--aws key pair creation using terraform--first link--code example--
+
+vi main.tf
+
+paste
+
+terraform plan--
+
+I terraform apply--planning section 1 to add, e to change, e to destroy--yes--1 added
+
+terraform apply again---it will not add again it will ignore, no change--this behavior we called idempotency--100 times it will tell same thing terraform destroy--you need to be carefully---yes destroy--1 destroyed--how terraform knows how these only destroy it--whenever execute apply command--Whatever changes it will create one file--terraform.tfstate---memory like for terraform it is heart of your terraform, this guy having information---
+
+terraform apply -auto-approve
+
+cat terraform.tfstate--it will show the content
+
+terraform show--it will clerly tell what we created all information it will give
+
+terraform destroy
+
+two sections--1 provider and resource section
+
+3rd section-- variables, 4th section is output
+
+decleration:
+
+1 variable "var1" {
+
+default = 20
+
+}
+
+access
+
+var.var1 or "$(var.var1)"
+
+print:
+
+output "myvalue" { 
+value=var.var1 or value="${var.var1}"
+}
+
+output, variable, value, var, var, default---predefined values we cant change comment section: /*comment line"/
+
+vi main.tf
+
+variable "myvar1" ( default 20
+
+output "myvalue" { value-var.myvar1
+
+Terrah
+
+certifi
+
+I
+
+terraform apply--output will get
+
+vi main.tf
+
+variable "myvar1" { }
+
+variable "myvar2" { default="devops" }
+output "value" (
+
+value-var.myvar1
+
+output "mycourse" ( value-var.myvar2
+
+terraform apply--it will ask enter var.var1=100
+
+whenever you want pass the argument value trough command line
+
+terraform apply auto-approve var "myvar1-200"
+
+terraform apply-auto-approve-100
+
+terraform apply auto-approve var "myvalue 2000"---> overriding
+
+vi myvalues.tfvars-mandatory that extension of variables==.tfvars
+
+myvar1-200000
+
+terraform apply -auto approve var-file myvalues tfvars---it automatically picked up different ways to pass the variable
+
+1 defaults section, 2 without default section,
+
+3-var,
+
+4-var-file
+
+terraform knows under which folder our code is, it will read entire files content, you can have n no of tf files in current folder, but you dont need to
+
+tell take particular file
+
+terraform show
+
+cat terraform.tristate
+terraform destroy -auto-approve
+
+terraform show
+
+cat terraform.tfstate
+
+cat main.tf---copy paste in notepad
+
+vi providers.tf
+
+provider section copy and paste
+
+vi variable.tf
+
+provider section copy and paste
+
+vi output.tf
+
+provider section copy and paste
+
+rm -f main.tf
+
+terraform apply auto-approve
+
+all are very very important--declerative tool not issue very it defined
+
+different data type in terraform(imp and mandatory)---if we are not specify which datatype it will take defaultly as string
+
+terraform apply -auto-approve -var "myvar1=200"
+
+1 string
+
+2 Boolean--true and false
+
+3 map---nothing but dictionary
+
+4 list---python list same
+
+5. number
+
+1 string---
+
+variable "mydata" (
+
+type = string
+
+default "devops"
+}
+
+terraform destroy 
+mv providers.tf /tmp
+
+rm -rf app1
+
+mv/tmp/providers.tf
+
+create a ec2 server using all datatypes
+
+1 search---ec2 creation using terraform resource--make sure remember search pattern--first link--code will be there--go down to arguments check the what ever you want
+
+vi ec2.tf
+
+ami var.ami_id
+
+inatance type var server type keyp name var keypair name
+
+tags (
+
+Name var.server name
+
+I
+
+availability zone storage size
+
+security
+
+variables.tf
+
+variable "ami_id" { 
+type =string
+}
+variable "server_type" {
+
+type string
+
+}
+
+variable "keypair_name" {
+
+type string
+
+}
+
+variable "server_name" { }
+
+type string
+
+vi myvalues.tfvars
+
+ami_id =
+
+server type =
+
+key name =
+
+server name = "dvsserver"
+
+terraform plan-var-file myvalues.tfvars
+
+terraform apply -auto-approve var-file myvalues.tfvars--w can see our server
+
+now i want to create 20 servers, vpc, s3-count we can use
+
+vi ec2.tf
+
+I
+
+count = 1
+
+ami var.ami id
+
+inatance type var.server type
+
+keyp name var.keypair_name
+tags = {
+
+Name var.server name
+
+terraform apply -auto-approve -var-file myvalues.tfvars-you gave already one server no è added
+
+now count = 2
+
+terraform apply auto-approve -var-file myvalues.tfvars-one more it will create one already created with same config
+
+different names
+
+we have a concept called as meta arguments
+
+count = 3 = 0, 1, 2
+
+count.index-
+
+vi ec2.tf
+
+count = 2
+
+ami var.ami id inatance type var.server type
+
+keyp name var.keypair name
+
+tags = { Name = "$(var.server_name)-$(count.index+1}"
+
+)
+
+I
+
+terraform apply-auto-approve -var-file myvalues.tfvars--o added 2 changed
+
+dvsserver-1, dvssever-0, count+1
+
+terraform apply-auto-approve -var-file myvalues.tfvars--o added 2 changed
+
+separate names
+vi ec2.tf
+
+count = 2
+
+ami var.ami_id
+
+inatance_type = var.server_type
+
+keyp_name = var.keypair_name
+
+tags = {
+
+}
+
+Name = "${var.server_name)-${count_index+1)"
+
+vi myvalues.tfvars
+
+ami_id = ""
+
+server type =
+
+key name =
+
+server_name = ["dvsserver", "dbsever", "mwserver"]
+
+count = 3(itself loop)
+
+count.index-0 ==> element (server name,count.index)---whenever we want define no of element we have list, inbuild function Element
+
+count.index-1==> element(server name,count.index)
+
+count.index-2==> element (server_name,count.index)
+
+vi ec2.tf
+
+count = 2
+
+ami var.ami_id
+
+I
+
+{
+
+100%
+
+inatance type var.server type
+
+keyp_name = var.keypair_name
+
+tags = {
+
+Name elment(var.server_name,count.index)
+}
+
+variables.tf
+
+variable "ami_id" { type string }
+
+variable "server_type" { type string
+
+}
+
+variable "keypair name" { type string }
+
+variable "server_name" { type = list }
+
+vi myvalues.tfvars
+
+ami id =
+
+server type =
+
+key name =
+
+server name ["dvsserver", "dbsever", "mwserver"]
+
+terraform apply -auto-approve -var-file myvalues.tfvars--o added 2 changed
+
+availability zones---multiple map data type we can use
+
+for each loop we have in terraform
+
+each.key= keys----access keys
+
+each.value=value-access value
+for each var.server details
+
+vi ec2.tf
+
+for each var.server details ami var.ami id inatance type var, server type availability zone each.value key name var keypair name
+
+tags = { Name each.key }
+
+variables.tf
+
+variable "ami_id" ( type string }
+
+variable "server type" ( type string
+
+}
+
+variable "keypair_name" { type = string
+
+variable "server_details" { type map }
+
+vi myvalues.tfvars
+
+ami_id =
+
+server type =
+
+key name = ""
+
+server_datails={"appserver":"us-east-la", "Dbserver":"us-east-1b"}
+
+terraform apply -auto-approve -var-file myvalues.tfvars--o added 2 changed
+
+note: whenever you were giving map data type as a loop no need to define count will not work
+
+note: you cant change server availabily zone after creating, it will detroy automatically and rebuild
+
+what ever components changable through online--it will not destroy, not changable components like keypair, az, amiid--then it will detroy automatically and
+
+it will add.
+
+terraform plan -var-file myvalues.tfvars--2 add @ changed 2 destroy
+
+terraform apply -auto-approve -var-file myvalues.tfvars--2 added @ changed 2 destroyed
+
+Depends on ---once first resource got created then only create this resources
+
+1 i want ec2 from vpc---ec2 is depends on vpc
+
+depends on [aws_vpc.vpcname]
+
+1 keypair creation using terraform in aws---copy code and paste
+
+vi ec2.tf
+
+mykeypair, key_name = "batch1"
+
+for each var.server details
+
+ami var.ami_id
+
+inatance type var.server type
+
+availability zone each.value
+
+depends on [aws_key pair.mykeypair]
+
+[14-05-2025 00:21] dhanaprasad008: tags = {
+
+Name each.key
+
+}
+
+terraform plan -var-file myvalues.tfvars--2 add 8 changed 2 destroy
+
+terraform apply auto-approve -var-file myvalues.tfvars--2 added a changed 2 destroyed
+
+interview very very imp: i am having n no of resources which are executed i want ensure that creating others once the complete you should use depends on.
+
+i have a small requirement i would like that print my keypair arn value
+
+terraform show---previously executed
+
+whenever we want respective value from previous resource name, object name, value
+
+1 vi output.tf
+
+output "mykey_arn" {
+
+value aws key pair.mykeypair.arn
+
+}
+
+terraform apply
+
+i would like to my all servers should have same keypair
+
+vi ec2.tf
+
+mykeypair, key_name =
+
+for each var.server details
+
+ami yar.ami_id
+
+inatance type var.server_type availability zone each.value
+
+depends_on = [aws_key_pair.mykeypair]
+
+***key_name = aws key pair.mykeypair.key_name-interconnect multiple resources in our code--previous resource
+[14-05-2025 00:22] dhanaprasad008: tags = {
+
+}
+
+Name each.key
+
+cortifis
+
++
+
+X
+
+100%
+
+terraform plan -var-file myvalues.tfvars--2 add e changed 2 destroy
+
+terraform apply -auto-approve -var-file myvalues.tfvars--2 added 8 changed 2 destroyed
+
+terraform destroy -auto-approve -var-file myvalues.tfvars--2 added e changed 2 destroyed
+
+1 aws console--> ec2-->vpcs3 bucket-->
+
+2 login--mkdir myinfra.tf---registry....copy providers-providers.tf---paste code here
+
+3 main.tf,
+
+4 variables.tf,
+
+variable "bucket_name" {}
+
+5 myvalues.tfvars
+
+bucket_name = "batch4dvsdevops008"
+
+vi main.tf
+
+google s3 creation using terraform and random id--copy the code
+
+resource "random_id" "myrand_id" {
+
+byte_length = 2
+
+}
+
+resource "aws_s3_bucket" "mys3" {
+
+bucket= "${var.bucket_name}-${random_id.myrand_id.hex}"
+
+tags = {
+
+Name = "${var.bucket_name}-${random_id.myrand_id.hex}"
+
+}
+
+if you want give unique number
+
+random id resource in terraform
+
+resource
+
+byte length = 0
+
+terraform init
+
+terraform plan -var-file myvalues.tfvars
+
+terraform apply auto-approve -var-file myvalues.tfvars
+
+creating VPC-VPC(10.10.0.0/16)--IGW--Route table--subnet (10.10.15.0/24)--Ec2
+
+4 variables.tf,
+
+variable "bucket_name" {}
+variable "vpc_cidr" {}
+
+variable "vpc_name" {}
+
+variable "igw_name" {}
+
+variable "route_name" {}
+
+variable "subnet_name" {}
+
+variable "subnet_cidr" {}
+
+variable "ami_id" {}
+
+variable "server_type" {}
+
+variable "keypair_name" {}
+
+variable "server_name" {}
+
+5 myvalues.tfvars
+
+bucket_name = "batch4dvsdevops"
+vpc_cidr = "10.10.0.0/16"
+
+vpc_name = "batch4vpc"
+
+igw_name = "myigwbatch4"
+
+route_name = "myroutedvs"
+
+subnet_name = "mysubnetdvs"
+
+subnet_cidr = "10.10.15.0/24"
+
+ami_id = "ami-0953476d60561c955"
+
+server_type = "t2.micro"
+
+keypair_name = "Keypair1"
+
+server_name ="terraformvpc"
+
+
+vi main.tf
+
+resource "random_id" "myrand_id" {
+
+byte_length = 2
+
+}
+
+resource "aws_s3_bucket" "mys3" {
+
+bucket = "${var.bucket_name}-${random_id.myrand_id.hex}"
+
+tags = {
+
+Name = "${var.bucket_name}-${random_id.myrand_id.hex}"
+
+}
+}
+resource "aws_vpc" "myvpc" {
+
+  cidr_block = var.vpc_cidr
+
+  instance_tenancy = "default"
+
+  tags = {
+
+    Name = var.vpc_name
+
+  }
+
+}
+
+resource "aws_internet_gateway" "myigw" {
+
+  vpc_id = aws_vpc.myvpc.id
+
+  depends_on = [aws_vpc.myvpc]
+
+  tags = {
+
+    Name = var.igw_name
+
+  }
+
+}
+
+resource "aws_route_table" "myroute" {
+
+  vpc_id = aws_vpc.myvpc.id
+
+  route {
+
+    cidr_block = "0.0.0.0/0"
+
+    gateway_id = aws_internet_gateway.myigw.id
+
+  }
+
+  tags = {
+
+    Name = var.route_name
+
+  }
+
+}
+
+resource "aws_subnet" "mysubnet" {
+
+  vpc_id = aws_vpc.myvpc.id
+
+  cidr_block = var.subnet_cidr
+
+  tags = {
+
+    Name = var.subnet_name
+
+  }
+
+}
+
+resource "aws_route_table_association" "assosiate" {
+
+  subnet_id = aws_subnet.mysubnet.id
+
+  route_table_id = aws_route_table.myroute.id
+
+}
+
+resource "aws_instance" "ec2" {
+
+  ami = var.ami_id
+
+  instance_type = var.server_type
+
+  key_name = var.keypair_name
+
+  subnet_id = aws_subnet.mysubnet.id
+
+  tags = {
+
+    Name =  var.server_name
+
+  }
+
+}
+
+
+terraform init
+
+terraform plan -var-file myvalues.tfvars
+
+terraform apply -auto-approve -var-file myvalues.tfvars
+
+Modules--imp--we always develop modules in real time, we will develop induvals application
+---------------------------------------------------------------
+mkdir /root/mymodules
+
+mkdir /root/mymodules/s3
+
+vi /root/mymodules/s3/main.tf---bucket creation code
+
+resource "random_id" "myrand_id" {
+
+byte length = 2
+
+}
+
+resource "aws_s3_bucket" "mys3" {
+
+bucket= "${var.bucket_name}-{random id.myrand_id.hex)}"
+
+tags = {
+
+Name
+
+}
+
+"${var.bucket_name}-{random_id.myrand_id.hex}"
+
+vi /root/mymodules/s3/variable.tf
+
+variable "bucket_name" {}
+
+vi /root/mymodules/s3/myvalues.tf
+
+bucket_name = "batch4dvsdevops008"
+
+destroy infra what you created
+
+yum installed tree-y-will help you understand the structure
+
+tree/root/mymodules/
+
+cp /root/myinfra/providers.tf /root/mymodules/s3
+
+cd /root/mymodules/s3
+
+terraform init
+
+terraform plan -var-file myvalues.tfvars
+
+Vpc
+
+cp /root/myinfra/providers.tf /root/mymodules/vpc
+
+mkdir /root/mymodules/Vpc
+
+vi /root/mymodules/Vpc/main.tf
+
+resource "aws_internet gateway" "myigw" {
+
+vpc_id=aws_vpc.myvpc.id
+
+depends on {aws_vpc.myvpc}
+
+tags = {
+
+Name "var.igw name"
+
+}
+
+}
+
+resource "aws_route_table" "myroute" {
+
+vpc_id=aws_vpc.myvpc.id
+
+route {
+
+I
+
+cidr block = "0.0.0.0/0"
+
+}
+
+gateway_id=aws_internet_gateway.myigw.id
+
+tags {
+
+Name var.route_name
+}}
+
+resource "aws_subnet" "mysubnet" {
+
+vpc_id =aws_vpc.myvpc.id
+
+cidr block sub_cidr
+
+tags = {
+
+Name var.subnet name
+
+}
+
+}
+
+resource "aws route table_association" "assosiate" {
+
+subnet id =aws_subnet.mysubnet.id
+
+route_table_id=aws_route_table.myroute.id
+
+}
+
+vi /root/mymodules/Vpc/variable.tf
+
+variable "bucket_name" {}
+
+variable "vpc_cidr" {}
+
+variable "ypc_name" {}
+
+variable "igw_name" {}
+
+variable "route name" {}
+
+variable "subnet_name" {}
+
+vi /root/mymodules/Vpc/myvalues.tfvars I
+
+bucket name = "batch4dvsdevops008"
+
+vpc cidr= "10.10.0.0./16"
+subnet_name = "mysubnetdys"
+
+sub_cidr = "10.10.15.0/24
+
+Ec2
+
+cp/root/myinfra/providers.tf /root/mymodules/ec2
+
+mkdir /root/mymodules/ec2
+
+vi /root/mymodules/ec2/main.tf
+
+resource "aws_instance" "ec2" {
+
+ami = var.ami id
+
+instance type var.server_type
+
+key name var.keypair_name
+
+subnet id var.subnet id
+
+tags = {
+
+Name var.server name
+
+}
+
+vi /root/mymodules/ec2/variable.tf
+
+variable "ami_id" {}
+
+variable "server_type" {}
+
+variable "keypair_name" {}
+
+variable "server_name" {}
+
+variable "subnet_id" {}
+
+vi /root/mymodules/ec2/myvalues.tfvars
+
+ami id=""
+
+server type = "t2.micro"
+
+
+keypair_name =
+
+server name="server1"
+
+subnet_id=""
+
+cd /root/mymodules/ec2
+
+terraform init
+
+terraform plan -var-file myvalues.tfvars
+
+terraform apply-var-file myvalues.tfvars
+
+Modules- --same code will apply the different application
+-------------------------------------------------
+mkdir /root/myapplication/app1
+
+cd /root/myapplication/app1
+
+cp/root/myinfra/providers.tf /root/myapplications/app1
+
+vi app1.tf
+
+module "anyname" {
+
+source = "/root/mymodules/s3"
+
+bucket_name = "app1-dvsbatch4"
+
+}
+
+terraform init
+
+terraform plan
+
+terraform apply
+
+mkdir app2
+
+I
+
+cd app2
+
+vi app2.tf
+
+module "anyname" {
+ source = "/root/mymodules/s3"
+
+bucket_name = "app2-dvsbatch4"
+
+}
+
+terraform init
+
+terraform plan
+
+terraform apply
+
+cd app1
+
+cat /root/mymodules/vpc/variables.tf
+
+vi app1
+
+module "app1vpc" {
+
+source = "/root/mymodules/s3"
+
+vpc cidr "192.168.0.0/16"
+
+vpc_name
+
+igw name
+
+route name =
+
+sub_cidr =
+
+sub name=
+
+}
+
+terraform init
+
+terraform plan
+
+terraform apply
+
+vi /root/mymodules/vpc/output.tf
+
+output "subnet_id"
+
+value aws_subnet.mysub.id
+
+}
+
+vi app1
+
+module "applvpc" {
+
+source "/root/mymodules/s3"
+
+yps cidr "192.168.0.0/16"
+
+vpc name=
+
+igw_name
+
+route name=""
+
+sub cidr=
+
+sub name=
+
+module "app2ec2"
+
+source = "/root/mymodules/ec2"
+
+ami id=""
+
+server type = "t2.micro"
+
+keypair name="
+
+server name="server1"
+
+subnet id module.applvpc.subnet_id
+
+terraform init
+
+terraform plan
+
+terraform apply
+
+realtime environment--only one application---everything same different only names
+
+Dev
+
+Sit
+
+pt
+
+uat
+
+pre-pod
+
+prod
+
+Workspaces
+
+vi app1.tf
+
+module "anyname" {
+
+source = "/root/mymodules/s3"
+
+bucket name = "app1-dev-dvsbatch4"
+
+}
+
+vi variable.tf
+
+variable "app1_bucketname" {}
+
+vi app1_dev.tfvars
+
+app1_bucketname "app1-dev-dvs"
+
+vi app1_prod.tfvars
+
+app1_bucketname "app1-prod-dvs"
+
+rm -f all three
+
+terraform apply--created one bucket
+
+vi app1.tf
+
+module "mys3" {
+
+source = "/root/mymodules/s3"
+
+bucket name = "app1-sit-dvsbatch4"
+
+terraform apply--created one bucket---it will destroy dev, create sit
+
+workspace---default we will get one workspace(terraform.tfstate, same we will create for dev, prod
+
+terraform destroy
+
+vi app1.tf
+
+module "mys3" {
+
+source = "/root/mymodules/s3"
+
+bucket_name = var.app1_bucketname
+}
+
+vi variable.tf
+
+variable "app1_bucketname" {}
+
+vi app1_dev.tfvars
+
+app1_bucketname = "app1-dev-dvs"
+
+vi app1 prod.tfvars
+
+app1_bucketname "app1-prod-dvs"
+
+terraform workspace list
+
+terraform workspace new dev
+
+1s-al
+
+terraform.tfstate.d
+
+1s -1 terraform.tfstate.d
+
+terraform workspace list
+
+terraform workspace select dev
+
+terrafore workspace list
+
+terraform apply -auto-approve var-file epp1_dev.tfvars
+
+terrafors workspace select prod
+
+terraform workspace list
+
+terraform apply auto-approve -var-file app1_prod.tfvars
+
+terraform workspace list
+
+terrafore workspace new uit Is-al
+
+sane
+
+protecting-how my terraform knows i have already created-remembering who-tfstatefile
+
+imagine it got deleted-if u lost file simply it will create from scratching---ras is doing changes, raj also doing changes at a time then tfatate file will corrupted---something not working i need to revert back-we have versioning
+---------------------------------------------------------------------
+imp interview question--one definitely will get
+
+1 how you protect tfstate file
+
+2 how you will ensure that not getting corrupting
+
+3 what will you do if tfstate file corrupted
+
+we are working with terraform, terraform will remember what we are doing what we have done
+
+terraform show
+
+ls -l terraform.tfstate.d
+
+ls -l terraform.tfstate.d/uit
+
+terraform state backend s3--google
+
+can simple say that i am config backend for you this state file saving in s3 bucket--then fetching the data from state file,
+
+s3 will support versioning
+
+terraform workspace list
+
+terraform workspace select prod
+
+terraform destroy -var-file app1_prod.tfvars
+
+terraform workspace select wit
+
+terraform destroy -var-file app1_uit.tfvars
+
+terraform workspace select dev
+
+terraform destroy -var-file app1_dev.tfvars
+
+terraform workspace select default
+
+terraform workspace delete prod
+
+terraform workspace delete dev
+
+terraform workspace delete uit
+
+1s-1
+
+terraform show
+
+go to s3---my own bucket---terraform state---create--
+
+vi provider.tf
+
+terraform {
+  backend "s3" {
+    bucket = "mybucketname"
+    key    = "dev.state"
+    region = "us-east-1"
+    dynamodb_table = "terraform-lock-table"
+    encrypt = true
+  }
+}
+
+terraform in it
+
+terraform apply -var-file app1_dev.tfvars cat terraform.tfstate--i dont see any content in this file
+
+terraform show---i can see data from s3 bucket its fetching the data-
+
+s3-open bucket we can see
+
+1 how you protect tfstate file-yes we will create s3 bucket, we ensure that out terraform saving the entire content in that s3 bucket and inside bucket we ensure that content updated properly how it is happening-yes under the terraform provider we are going to specify backend, under backend we are telling man you should go to s3 bucket this my bucket what is file name, region bucket
+
+terraform destroy -var-file app1_dev.tfvars-unfortunately destroyed---is it possible to get back our data--s3 in versions we can see nothing to worry we can able to get back
+
+open version file contl a copy all-save file--go to our bucket--upload a file
+
+terraform apply-
+
+2 how you will ensure that not getting corrupting more than two peoples same time applying changes-state file will get corrupted---how we safeguarding our file-in s3 we ensure that we are linking up with s3 dynamo db--it will locked after apply changes for second person it will locked,
+
+more than two peoples applying changes in terraform it get locked
+
+how are you unlock the state file
+
+terraform destroy -var-file app1_dev.tfvars
+
+terraform show
+
+nohup terraform apply -var-file appl_dev.tfvars & terraform apply -var-file app1_dev.tfvaps
+
+terraform destroy -var-file appl dev.tfvars terraform destroy -var-file appl dev.tfvars
+
+duplicate session
+
+
+in both session
+terraform apply-var-file app1_dev.tfvars
+
+terraform force-unlock lockid--to unlock the terraform
+
+terraform installing software we can install os level only---we cant install in folder level

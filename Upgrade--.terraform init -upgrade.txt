@@ -1,0 +1,5 @@
+Upgrade--./terraform init -upgrade
+to define= use _ and to access = .values
+addresses in []
+you can define local with your own names
+seperation error= , use to seperate

@@ -1,0 +1,758 @@
+#cloud-config
+package_upgrade: true
+packages:
+  - nginx
+
+https://developer.hashicorp.com/terraform--main web
+https://developer.hashicorp.com/terraform/intro/terraform-editions
+https://developer.hashicorp.com/terraform-to install
+https://registry.terraform.io/providers/hashicorp/azurerm/latest--azure provider
+
+install terraform--link--download amd 64 windows--cmd--go to d drive terrform file path---run terraform --version
+install microsoft terraform and terraform in extensions of VSCode
+and open folder in VS--upload file of terraform--create one file Main.tf---upload azurerm provider and update subscription----create terraform user---give subscription contributor access--login in azure CLI--install CLI in local loptop login 
+--now update RG code from Google--and save---run ./terraform init, now run--./terraform plan -out main.tfplan
+run--./terraform apply -out main.tfplan--it will create rg group in Azure--
+
+Authenticate using application Object
+create app registration ---create terraform app--save---check client id, secreat id, tenant id add in under provider--secreat key--create one in app
+and run--./terraform plan -out main.tfplan
+run--./terraform apply -out main.tfplan--it will create rg without subscription role access
+
+Storage account--search code in google for storage account creation and blob containe and upload file----
+same content use lables references innstead of names for dependencies
+---------------------------------------------------------------
+terraform {
+  required_providers {
+    azurerm = {
+      source = "hashicorp/azurerm"
+      version = "4.54.0"
+    }
+  }
+}
+
+ provider "azurerm" {
+      features {}
+    }
+
+resource "azurerm_resource_group" "apprg" {
+  name     = "app-rg"
+  location = "West US"
+}
+
+resource "azurerm_storage_account" "dhanastorage202512" {
+  name                     = "dhanastorage202512"
+  resource_group_name      = azurerm_resource_group.apprg.name
+  location                 = azurerm_resource_group.apprg.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+
+}
+
+    resource "azurerm_storage_container" "container1" {
+      name                  = "container1"
+      storage_account_name   = azurerm_storage_account.dhanastorage202512.name
+      container_access_type = "private"
+    }
+
+        resource "azurerm_storage_blob" "file1" {
+      name                   = "s3file1.txt"
+      storage_account_name   = azurerm_storage_account.dhanastorage202512.name
+      storage_container_name = azurerm_storage_container.container1.name
+      type                   = "Block"
+      source                 = "s3file1.txt" 
+    }
+----------------------------------------------------------------------------------------------------
+
+Terraform destroy--./terraform destroy --yes--it will show what will delete
+
+using depends on clause
+Very imp---you can give first container and metion storage account name of lable referece and storage account name---it will understand and will create account first and then terrafor---but if give name instead of lable--it will not understand--so we have depends on concept---depends_on = [lable]--then it wil work
+---------------------------------------------------------------------
+resource "azurerm_storage_container" "container1" {
+      name                  = "container1"
+      storage_account_name   = "dhanastorage202512"
+      depends_on = [ azurerm_storage_account.dhanastorage202512 ]
+    }
+
+resource "azurerm_storage_account" "dhanastorage202512" {
+  name                     = "dhanastorage202512"
+  resource_group_name      = azurerm_resource_group.apprg.name
+  location                 = azurerm_resource_group.apprg.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+
+}
+-------------------------------------------------------------------------
+
+Virtual machine--create using azure--Vnet, VM windows
+Now from terraform--vnet creation--google--copy and paste---remove all create vnet and two subnets---provider upgraded to 4.5--terraform plan will get error---we need to upgrade ---.terraform init -upgrade
+now run plan -out, apply--it will work
+-----------------------------
+./terraform init -upgrade
+-----------------------
+resource "azurerm_virtual_network" "terraformVnet" {
+  name                = "terraformVnet"
+  location            = azurerm_resource_group.apprg.location
+  resource_group_name = azurerm_resource_group.apprg.name
+  address_space       = ["10.0.0.0/16"]
+
+  subnet {
+    name             = "tfsubnet1"
+    address_prefixes = ["10.0.1.0/24"]
+  }
+
+  subnet {
+    name             = "tfsubnet2"
+    address_prefixes = ["10.0.2.0/24"]
+  }
+}
+----------------------------------------------------------------------------
+
+using local values
+
+locals{
+resource group location = "north "--u can use multiple resouces--just u need to change in locals if you want change location, local.resouce_group_location
+------------------------------------------------------------------------------
+locals {
+resource_location = "West US"
+}
+
+resource "azurerm_resource_group" "apprg" {
+  name     = "app-rg"
+  location = local.resource_location
+}
+
+resource "azurerm_virtual_network" "terraformVnet" {
+  name                = "terraformVnet"
+  location            = local.resource_location
+  resource_group_name = azurerm_resource_group.apprg.name
+  address_space       = ["10.0.0.0/16"]
+
+  subnet {
+    name             = "tfsubnet1"
+    address_prefixes = ["10.0.1.0/24"]
+  }
+
+  subnet {
+    name             = "tfsubnet2"
+    address_prefixes = ["10.0.2.0/24"]
+  }
+}
+----------------------------------------------------------------------
+spliting config file----create new file--local.tf---paste local code---terraform.tf--provider---good practice to 
+Local.tf
+-----------------------------------------
+locals {
+resource_location = "West US"
+}
+----------------------------------------------
+Terraform.tf
+----------------------------------
+terraform {
+  required_providers {
+    azurerm = {
+      source = "hashicorp/azurerm"
+      version = "4.55.0"
+    }
+  }
+}
+
+ provider "azurerm" {
+      features {}
+    }
+--------------------------------------------------------------------
+Main.tf
+--------------------------------------------------------------------
+resource "azurerm_resource_group" "apprg" {
+  name     = "app-rg"
+  location = local.resource_location
+}
+
+resource "azurerm_virtual_network" "terraformVnet" {
+  name                = "terraformVnet"
+  location            = local.resource_location
+  resource_group_name = azurerm_resource_group.apprg.name
+  address_space       = ["10.0.0.0/16"]
+
+  subnet {
+    name             = "tfsubnet1"
+    address_prefixes = ["10.0.1.0/24"]
+  }
+
+  subnet {
+    name             = "tfsubnet2"
+    address_prefixes = ["10.0.2.0/24"]
+  }
+}
+--------------------------------------------------------------------------
+Types and values--list and string
+in locals--subnet_address_profix = ["10'0'1'0", "10.0.2.0"]
+to access in main.tf ----address_prefixes =[local.subnet_address_profix[0] or [1]]
+--------------------------------------------------------------------------
+
+Map
+in locals--c={ name= "app-metworwk", addres prefixes=[10'0'0'0/16]}
+in main.tf--name==local.subnet_address_profix and local.address prefixes
+
+use the list of maps for subnets--loca---subnets{ name=:web1", address prefifix}{ name=:web2", address prefifix}
+to access==name=local.subnet[0].name, local.subnets[1].address prefixes
+
+----------------------------------------------------
+locals.tf
+locals {
+resource_location = "West US"
+virtual_network={name = "terraformVnet", address_prefixes = ["10.0.0.0/24"]}
+subnets=[{name = "tfsubnet1", address_prefixes= ["10.0.1.0/24"]},{ name = "tfsubnet2", address_prefixes= ["10.0.2.0/24"]}]
+}
+-------------------------------------------
+main.tf
+resource "azurerm_virtual_network" "terraformVnet" {
+  name                = local.virtual_network.name
+  location            = local.resource_location
+  resource_group_name = azurerm_resource_group.apprg.name
+  address_space       = local.virtual_network.address_prefixes
+
+  subnet {
+    name             = local.subnets[0].name
+    address_prefixes = local.subnets[0].address_prefixes
+  }
+
+  subnet {
+    name             = local.subnets[1].name
+    address_prefixes = local.subnets[1].address_prefixes
+  }
+}
+-------------------------------------------------------------------
+remove all subnets and use with virtualnetwork and resource group independently
+---------------------------------
+main,tf
+resource "azurerm_virtual_network" "terraformVnet" {
+  name                = local.virtual_network.name
+  location            = local.resource_location
+  resource_group_name = azurerm_resource_group.apprg.name
+  address_space       = local.virtual_network.address_prefixes
+}
+resource "azurerm_subnet" "subnet1" {
+  name                 = local.subnets[0].name
+  resource_group_name  = azurerm_resource_group.apprg.name
+  virtual_network_name = azurerm_virtual_network.terraformVnet.name
+  address_prefixes     = local.subnets[0].address_prefixes
+}
+resource "azurerm_subnet" "subnet2" {
+   name                 = local.subnets[1].name
+  resource_group_name  = azurerm_resource_group.apprg.name
+  virtual_network_name = azurerm_virtual_network.terraformVnet.name
+  address_prefixes     = local.subnets[1].address_prefixes
+}
+-------------------------------------------------------------
+create a virtual interface
+main.tf file
+resource "azurerm_virtual_network" "terraformVnet" {
+  name                = local.virtual_network.name
+  location            = local.resource_location
+  resource_group_name = azurerm_resource_group.apprg.name
+  address_space       = local.virtual_network.address_prefixes
+}
+resource "azurerm_subnet" "subnet1" {
+  name                 = local.subnets[0].name
+  resource_group_name  = azurerm_resource_group.apprg.name
+  virtual_network_name = azurerm_virtual_network.terraformVnet.name
+  address_prefixes     = local.subnets[0].address_prefixes
+}
+resource "azurerm_subnet" "subnet2" {
+   name                 = local.subnets[1].name
+  resource_group_name  = azurerm_resource_group.apprg.name
+  virtual_network_name = azurerm_virtual_network.terraformVnet.name
+  address_prefixes     = local.subnets[1].address_prefixes
+}
+resource "azurerm_network_interface" "networkinterface1" {
+  name                = "networkinterface1"
+  location            = azurerm_resource_group.apprg.location
+  resource_group_name = azurerm_resource_group.apprg.name
+
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.subnet1.id
+    private_ip_address_allocation = "Dynamic"
+  }
+}
+
+------------------------------------------------------
+Getting output values---output "websubnet"{
+value=azurerm_subnet.websubnet01.id--gives websubnet_id
+-------------------------------------------------------
+output "subnet01_id" {
+  value = azurerm_subnet.subnet1.id
+}
+--------------------------------------------------
+create a public ip address--code and allocate to out ip config of subnet ensure to it will allocate to your interface
+resource "azurerm_network_interface" "networkinterface1" {
+  name                = "networkinterface1"
+  location            = local.resource_location
+  resource_group_name = azurerm_resource_group.apprg.name
+
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.subnet1.id
+    private_ip_address_allocation = "Dynamic"
+    public_ip_address_id = azurerm_public_ip.webip01.id
+  }
+}
+resource "azurerm_public_ip" "webip01" {
+  name                = "webip01"
+  location            = local.resource_location
+  resource_group_name = azurerm_resource_group.apprg.name
+  allocation_method   = "Static"
+}
+----------------------------------------------------------
+
+create NSG and assosiate to subnets
+
+resource "azurerm_network_security_group" "mynsg1" {
+  name                = "mynsg1"
+  location            = local.resource_location
+  resource_group_name = azurerm_resource_group.apprg.name
+
+  security_rule {
+    name                       = "allowrdp"
+    priority                   = 300
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "3389"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+}
+resource "azurerm_subnet_network_security_group_association" "assosiatensg1" {
+  subnet_id                 = azurerm_subnet.subnet1.id
+  network_security_group_id = azurerm_network_security_group.mynsg1.id
+}
+resource "azurerm_subnet_network_security_group_association" "assosiatensg2" {
+  subnet_id                 = azurerm_subnet.subnet2.id
+  network_security_group_id = azurerm_network_security_group.mynsg1.id
+}
+----------------------------------------------------------
+create VM---use old details networking as well--networkinterface will use to communicate between our network to resource
+resource "azurerm_windows_virtual_machine" "myvm1" {
+  name                = "winvm"
+  location            = local.resource_location
+  resource_group_name = azurerm_resource_group.apprg.name
+  size                = "Standard_F2"
+  admin_username      = "adminuser"
+  admin_password      = "adminuser008"
+  network_interface_ids = [
+    azurerm_network_interface.networkinterface1.id,
+  ]
+
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
+
+  source_image_reference {
+    publisher = "MicrosoftWindowsServer"
+    offer     = "WindowsServer"
+    sku       = "2022-Datacenter"
+    version   = "latest"
+  }
+}
+----------------------------------------------------------------------------
+Using input variables---while planning it will ask variable name
+variable "vm_name" {
+  type = string
+  description = "this is decof variable name"
+}
+
+resource "azurerm_windows_virtual_machine" "myvm1" {
+  name                = var.vm_name
+  location            = local.resource_location
+  resource_group_name = azurerm_resource_group.apprg.name
+  size                = "Standard_F2"
+  admin_username      = "adminuser"
+  admin_password      = "adminuser008"
+  
+  network_interface_ids = [
+    azurerm_network_interface.networkinterface1.id,
+  ]
+-------------------------------------------------------------------
+using user defination file
+terraform.tfvars
+vm_name = "win01"
+admin_username = "dhana001"
+
+variable.tf
+variable "vm_name" {
+  type = string
+  description = "this is decof variable name"
+}
+resource "azurerm_windows_virtual_machine" "myvm1" {
+  name                = var.vm_name
+  location            = local.resource_location
+  resource_group_name = azurerm_resource_group.apprg.name
+  size                = "Standard_F2"
+  admin_username      = var.admin_username
+  admin_password      = "adminuser008"
+--------------------------------------------------------------
+secreat values
+
+variable "admin_password" {
+  type = string
+  sensitive = true
+}
+----------------------------------------
+create disk and attach to the vm
+resource "azurerm_managed_disk" "disk1" {
+  name                 = "disk1"
+  location            = local.resource_location
+  resource_group_name = azurerm_resource_group.apprg.name
+  storage_account_type = "Standard_LRS"
+  create_option        = "Empty"
+  disk_size_gb         = "4"
+}
+resource "azurerm_virtual_machine_data_disk_attachment" "example" {
+  managed_disk_id    = azurerm_managed_disk.disk1.id
+  virtual_machine_id = azurerm_virtual_machine.vm_name.id
+  lun                = "o"
+  caching            = "ReadWrite"
+}
+----------------------------------------------------
+create secondary interface to same vm same subnet
+resource "azurerm_network_interface" "networkinterface2" {
+  name                = "networkinterface2"
+  location            = local.resource_location
+  resource_group_name = azurerm_resource_group.apprg.name
+
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.subnet2.id
+    private_ip_address_allocation = "Dynamic"
+  }
+}
+--------------------------------------------------------------
+
+resource "azurerm_resource_group" "apprg" {
+  name     = "app-rg"
+  location = local.resource_location
+}
+
+resource "azurerm_virtual_network" "terraformVnet" {
+  name                = local.virtual_network.name
+  location            = local.resource_location
+  resource_group_name = azurerm_resource_group.apprg.name
+  address_space       = local.virtual_network.address_prefixes
+}
+resource "azurerm_subnet" "subnet1" {
+  name                 = local.subnets[0].name
+  resource_group_name  = azurerm_resource_group.apprg.name
+  virtual_network_name = azurerm_virtual_network.terraformVnet.name
+  address_prefixes     = local.subnets[0].address_prefixes
+}
+resource "azurerm_subnet" "subnet2" {
+   name                 = local.subnets[1].name
+  resource_group_name  = azurerm_resource_group.apprg.name
+  virtual_network_name = azurerm_virtual_network.terraformVnet.name
+  address_prefixes     = local.subnets[1].address_prefixes
+}
+resource "azurerm_network_interface" "networkinterface1" {
+  name                = "networkinterface1"
+  location            = local.resource_location
+  resource_group_name = azurerm_resource_group.apprg.name
+
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.subnet1.id
+    private_ip_address_allocation = "Dynamic"
+    public_ip_address_id = azurerm_public_ip.webip01.id
+  }
+}
+resource "azurerm_network_interface" "networkinterface2" {
+  name                = "networkinterface2"
+  location            = local.resource_location
+  resource_group_name = azurerm_resource_group.apprg.name
+
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.subnet2.id
+    private_ip_address_allocation = "Dynamic"
+  }
+}
+resource "azurerm_public_ip" "webip01" {
+  name                = "webip01"
+  location            = local.resource_location
+  resource_group_name = azurerm_resource_group.apprg.name
+  allocation_method   = "Static"
+}
+resource "azurerm_network_security_group" "mynsg1" {
+  name                = "mynsg1"
+  location            = local.resource_location
+  resource_group_name = azurerm_resource_group.apprg.name
+
+  security_rule {
+    name                       = "allowrdp"
+    priority                   = 300
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "3389"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+}
+resource "azurerm_subnet_network_security_group_association" "assosiatensg1" {
+  subnet_id                 = azurerm_subnet.subnet1.id
+  network_security_group_id = azurerm_network_security_group.mynsg1.id
+}
+resource "azurerm_subnet_network_security_group_association" "assosiatensg2" {
+  subnet_id                 = azurerm_subnet.subnet2.id
+  network_security_group_id = azurerm_network_security_group.mynsg1.id
+}
+resource "azurerm_windows_virtual_machine" "myvm1" {
+  name                = var.vm_name
+    location            = local.resource_location
+  resource_group_name = azurerm_resource_group.apprg.name
+  size                = var.vm_size
+  admin_username      = var.admin_username
+  admin_password      = "adminuser008"
+  
+  network_interface_ids = [
+    azurerm_network_interface.networkinterface1.id,
+    azurerm_network_interface.networkinterface2.id
+  ]
+
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
+
+  source_image_reference {
+    publisher = "MicrosoftWindowsServer"
+    offer     = "WindowsServer"
+    sku       = "2022-Datacenter"
+    version   = "latest"
+  }
+  depends_on = [ azurerm_resource_group.apprg,
+  azurerm_network_interface.networkinterface1,
+  azurerm_network_interface.networkinterface2 ]
+}
+resource "azurerm_managed_disk" "disk1" {
+  name                 = "disk1"
+  location            = local.resource_location
+  resource_group_name = azurerm_resource_group.apprg.name
+  storage_account_type = "Standard_LRS"
+  create_option        = "Empty"
+  disk_size_gb         = "4"
+}
+resource "azurerm_virtual_machine_data_disk_attachment" "example" {
+  managed_disk_id    = azurerm_managed_disk.disk1.id
+  virtual_machine_id = azurerm_virtual_machine.vm_name.id
+  lun                = "o"
+  caching            = "ReadWrite"
+}
+---------------------------------------------------------------------
+count meta argument--we have one resource block but terraform will give 3 managed resources--index key
+
+resource "azurerm_storage_account" "dhanastorage202512" {
+  name                     = "${count.index}dhanastorage202512"
+  resource_group_name      = azurerm_resource_group.apprg.name
+  location                 = azurerm_resource_group.apprg.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+depends_on = [ azurerm_resource_group.apprg ]
+}
+-----------------------------------------------------------------------------
+count of containers
+
+resource "azurerm_storage_account" "storageaccount" {
+  name                     = local.storage_account_name.name
+  resource_group_name      = azurerm_resource_group.app-grp.name
+  location                 = local.resource_location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+}
+
+resource "azurerm_storage_container" "scripts" {
+  count=3
+  name                  = "scripts${count.index}"
+  depends_on = [ azurerm_storage_account.storageaccount ]
+}
+------------------------------------------------------------------------
+for each loop
+resource "azurerm_storage_account" "storageaccount" {
+  name                     = local.storage_account_name.name
+  resource_group_name      = azurerm_resource_group.app-grp.name
+  location                 = local.resource_location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+}
+
+resource "azurerm_storage_container" "scripts" {
+for_each = toset(["data","scrpt","blob"])
+  name                  = each.key
+  depends_on = [ azurerm_storage_account.storageaccount ]
+}
+
+output "container_name" {
+  value=azurerm_storage_container.scripts["data"].name
+}
+----------------------------------------------------------
+comments in terraform(#, // /*......*/
+-----------------------------------------------------------
+mutiple blobs
+
+resource "azurerm_storage_account" "storageaccount" {
+  name                     = local.storage_account_name.name
+  resource_group_name      = azurerm_resource_group.appgrp.name
+  location                 = local.resource_location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+}
+
+resource "azurerm_storage_container" "scripts" {
+for_each = toset(["data","scrpt","blob"])
+  name                  = each.key
+  depends_on = [ azurerm_storage_account.storageaccount ]
+}
+
+  resource "azurerm_storage_blob" "files" {
+    for_each = tomap(
+      { s3file1 = "s3file1.txt"
+        s3file1 = "s3file1.txt"
+        s3file1 = "s3file1.txt"
+
+      }
+    )
+      name                   = "${each.key}.txt"
+      storage_account_name   = azurerm_storage_account.dhanastorage202512.name
+      storage_container_name = azurerm_storage_container.scripts["data"].name
+      type                   = "Block"
+      source                 = each.value 
+  }
+----------------------------------------------------------------------------
+multiple subnets
+
+resource "azurerm_virtual_network" "terraformVnet" {
+  name                = local.virtual_network.name
+  location            = local.resource_location
+  resource_group_name = azurerm_resource_group.apprg.name
+  address_space       = local.virtual_network.address_prefixes
+}
+resource "azurerm_subnet" "subnets" {
+  for_each = {
+    "subnet1" = ["10.0.1.0/24"]
+    "subnet2" = ["10.0.2.0/24"]
+  }
+  name                 = each.key
+  resource_group_name  = azurerm_resource_group.apprg.name
+  virtual_network_name = azurerm_virtual_network.terraformVnet.name
+  address_prefixes     = each.value
+}
+-------------------------------------------------------------------
+multiple interfaces
+
+resource "azurerm_virtual_network" "terraformVnet" {
+  name                = local.virtual_network.name
+  location            = local.resource_location
+  resource_group_name = azurerm_resource_group.apprg.name
+  address_space       = local.virtual_network.address_prefixes
+}
+resource "azurerm_subnet" "subnets" {
+  for_each = {
+    "subnet1" = ["10.0.1.0/24"]
+    "subnet2" = ["10.0.2.0/24"]
+  }
+  name                 = each.key
+  resource_group_name  = azurerm_resource_group.apprg.name
+  virtual_network_name = azurerm_virtual_network.terraformVnet.name
+  address_prefixes     = each.value
+}
+resource "azurerm_network_interface" "webinterfaces" {
+  count=2
+  name                = "webinterface0${count.index+1}"
+  location            = local.resource_location
+  resource_group_name = azurerm_resource_group.appgrp.name
+
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.app_network_subnets["subnet1"].id
+    private_ip_address_allocation = "Dynamic"
+  }
+}
+------------------------------------------------------------------
+multiple public ips attach to multiple interfaces
+resource "azurerm_virtual_network" "terraformVnet" {
+  name                = local.virtual_network.name
+  location            = local.resource_location
+  resource_group_name = azurerm_resource_group.apprg.name
+  address_space       = local.virtual_network.address_prefixes
+}
+resource "azurerm_subnet" "subnets" {
+  for_each = {
+    "subnet1" = ["10.0.1.0/24"]
+    "subnet2" = ["10.0.2.0/24"]
+  }
+  name                 = each.key
+  resource_group_name  = azurerm_resource_group.apprg.name
+  virtual_network_name = azurerm_virtual_network.terraformVnet.name
+  address_prefixes     = each.value
+}
+resource "azurerm_network_interface" "webinterfaces" {
+  count=2
+  name                = "webinterface0${count.index+1}"
+  location            = local.resource_location
+  resource_group_name = azurerm_resource_group.appgrp.name
+
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.app_network_subnets["subnet1"].id
+    private_ip_address_allocation = "Dynamic"
+    public_ip_address_id = azurerm_public_ip.webips[count.index]
+  }
+}
+resource "azurerm_public_ip" "webips" {
+  count = azurerm_public_ip_count
+  name                = "webip0${count.index+1}"
+  location            = local.resource_location
+  resource_group_name = azurerm_resource_group.apprg.name
+  allocation_method   = "Static"
+}
+-------------------------------------------------------------------------------
+using for each and variable
+tfvars
+subnet_informtion = {
+  subnet1 = {cidrblock = "10.0.1.0/24"}
+  subnet2 = {cidrblock = "10.0.2.0/24"}
+  }
+
+variable.tf
+variable "subnet_informtion" {
+  type=map(object({cidrblock = string}))
+}
+
+main.tf
+
+resource "azurerm_virtual_network" "terraformVnet" {
+  name                = local.virtual_network.name
+  location            = local.resource_location
+  resource_group_name = azurerm_resource_group.apprg.name
+  address_space       = local.virtual_network.address_prefixes
+}
+resource "azurerm_subnet" "subnets" {
+  for_each = var.subnet_informtion
+  name                 = each.key
+  resource_group_name  = azurerm_resource_group.apprg.name
+  virtual_network_name = azurerm_virtual_network.terraformVnet.name
+  address_prefixes     = each.value.cidrblock
+}
+-------------------------------------------------------------------------------
+for each for nsg groups
+
+resource "azurerm_subnet_network_security_group_association" "assosiatensgs" {
+  for_each = azurerm_subnet.subnets
+  subnet_id                 = azurerm_subnet.subnets[each.value].id
+  network_security_group_id = azurerm_network_security_group.mynsg1.id
+}
+-----------------------------------------------------------------------------
